@@ -147,7 +147,7 @@ public class TicketController {
     @PostMapping("/{bulk}")
     public ResponseEntity<?> createMultiTicket(@RequestBody ArrayList<NewTicket> createTicket) {
         ArrayList<Ticket> addTicket = new ArrayList<>();
-        ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>();
+//        ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>();
 
         for (NewTicket ticketRequest : createTicket) {
             Ticket ticket = new Ticket(
@@ -164,9 +164,10 @@ public class TicketController {
 
             TICKETS.add(ticket);
             addTicket.add(ticket);
-            responseTicket = new ApiResponseTicket<>(true, "success", HttpStatus.OK, addTicket, LocalDateTime.now());
+            ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>(true, "success", HttpStatus.OK, addTicket, LocalDateTime.now());
+            return new ResponseEntity<>(responseTicket, HttpStatus.OK);
 
         }
-        return new ResponseEntity<>(responseTicket, HttpStatus.OK);
+        return null;
     }
 }
