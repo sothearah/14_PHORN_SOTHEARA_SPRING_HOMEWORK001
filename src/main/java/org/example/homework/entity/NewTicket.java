@@ -1,14 +1,14 @@
-package org.example.homework.request;
+package org.example.homework.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.homework.entity.TicketStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketRequest {
+
+public class NewTicket {
     private String passengerName;
     private String travelDate;
     private String sourceStation;
@@ -18,5 +18,3 @@ public class TicketRequest {
     private TicketStatus ticketStatus;
     private String seatNumber;
 }
-
-

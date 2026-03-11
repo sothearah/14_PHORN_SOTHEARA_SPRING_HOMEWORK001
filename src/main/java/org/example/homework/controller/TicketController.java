@@ -1,5 +1,6 @@
 package org.example.homework.controller;
 
+import org.example.homework.entity.NewTicket;
 import org.example.homework.entity.Ticket;
 import org.example.homework.entity.TicketStatus;
 import org.example.homework.entity.UpdatatePaymentStatus;
@@ -121,7 +122,6 @@ public class TicketController {
         return ResponseEntity.ok(TICKETS);
     }
 
-
     //    DONE
     @DeleteMapping("/{delete-ticket}")
     public void deleteTicketById(@RequestParam("/{delete-ticket}") Long deleteTicket) {
@@ -131,16 +131,42 @@ public class TicketController {
     //DONE
     @PutMapping("/bulk")
     public ResponseEntity<?> updateMultipleId(@RequestBody UpdatatePaymentStatus status) {
-        ArrayList<Ticket> isUpdate = new ArrayList<>();
+        ArrayList<Ticket> update = new ArrayList<>();
         for (Long id : status.getTicketId()) {
             for (Ticket ticket : TICKETS) {
                 if (ticket.getTicketId().equals(id)) {
                     ticket.setPaymentStatus(status.isPaymentStatus());
-                    isUpdate.add(ticket);
+                    update.add(ticket);
                 }
             }
         }
-        ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>(true, "success", HttpStatus.OK, isUpdate, LocalDateTime.now());
+        ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>(true, "success", HttpStatus.OK, update, LocalDateTime.now());
+        return new ResponseEntity<>(responseTicket, HttpStatus.OK);
+    }
+
+    @PostMapping("/{bulk}")
+    public ResponseEntity<?> createMultiTicket(@RequestBody ArrayList<NewTicket> createTicket) {
+        ArrayList<Ticket> addTicket = new ArrayList<>();
+        ApiResponseTicket<ArrayList<Ticket>> responseTicket = new ApiResponseTicket<>();
+
+        for (NewTicket ticketRequest : createTicket) {
+            Ticket ticket = new Ticket(
+                    ATOMIC_LONG.getAndIncrement(),
+                    ticketRequest.getPassengerName(),
+                    ticketRequest.getTravelDate(),
+                    ticketRequest.getSourceStation(),
+                    ticketRequest.getDestinationStation(),
+                    ticketRequest.getPrice(),
+                    ticketRequest.isPaymentStatus(),
+                    ticketRequest.getTicketStatus(),
+                    ticketRequest.getSeatNumber()
+            );
+
+            TICKETS.add(ticket);
+            addTicket.add(ticket);
+            responseTicket = new ApiResponseTicket<>(true, "success", HttpStatus.OK, addTicket, LocalDateTime.now());
+
+        }
         return new ResponseEntity<>(responseTicket, HttpStatus.OK);
     }
 }
