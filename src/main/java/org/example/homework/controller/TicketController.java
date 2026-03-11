@@ -68,17 +68,38 @@ public class TicketController {
     }
 
 
-    //    server error
-    @GetMapping("/{filter}")
+    //DONE
+    @GetMapping("/search/{filter}")
     public ResponseEntity<?> filterTicket(@RequestParam TicketStatus ticketStatus, @RequestParam String travelDate) {
         ArrayList<Ticket> foundTicket = new ArrayList<>();
+        ApiResponseTicket<ArrayList<Ticket>> apiResponseTicket;
         for (Ticket ticket : TICKETS) {
             if (ticket.getTicketStatus().equals(ticketStatus) && ticket.getTravelDate().equals(travelDate)) {
                 foundTicket.add(ticket);
+            } else {
+                apiResponseTicket = new ApiResponseTicket<>(false, "Ticket fetched false", HttpStatus.OK, foundTicket, LocalDateTime.now());
             }
         }
-        ApiResponseTicket<ArrayList<Ticket>> apiResponseTicket = new ApiResponseTicket<>(true, "Success", HttpStatus.OK, foundTicket, LocalDateTime.now());
+        apiResponseTicket = new ApiResponseTicket<>(true, "Ticket fetched successfully", HttpStatus.OK, foundTicket, LocalDateTime.now());
         return new ResponseEntity<>(apiResponseTicket, HttpStatus.OK);
+    }
+
+    // DONE
+    @PutMapping("/{ticket-id}")
+    public ResponseEntity<?> updateById(@PathVariable("ticket-id") Long ticketId, @RequestBody TicketRequest ticketRequest) {
+        for (Ticket ticket : TICKETS) {
+            if (ticket.getTicketId().equals(ticketId)) {
+                ticket.setPassengerName(ticketRequest.getPassengerName());
+                ticket.setSourceStation(ticketRequest.getSourceStation());
+                ticket.setDestinationStation(ticketRequest.getDestinationStation());
+                ticket.setPrice(ticketRequest.getPrice());
+                ticket.setTicketStatus(ticketRequest.getTicketStatus());
+                ticket.setSeatNumber(ticketRequest.getSeatNumber());
+            }
+            ApiResponseTicket<Ticket> responseTicket = new ApiResponseTicket<>(true, "Ticket updated successfully", HttpStatus.OK, ticket, LocalDateTime.now());
+            return ResponseEntity.ok(responseTicket);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 
@@ -100,23 +121,6 @@ public class TicketController {
         return ResponseEntity.ok(TICKETS);
     }
 
-    //    error server
-    @PutMapping("/{ticket-id}")
-    public ResponseEntity<Ticket> updateById(@PathVariable("ticket-id") Long ticketId, @RequestParam TicketRequest ticketRequest) {
-        for (Ticket ticket : TICKETS) {
-            if (ticket.getTicketId().equals(ticketId)) {
-                ticket.setPassengerName(ticketRequest.getPassengerName());
-                ticket.setSourceStation(ticketRequest.getSourceStation());
-                ticket.setDestinationStation(ticketRequest.getDestinationStation());
-                ticket.setPrice(ticketRequest.getPrice());
-                ticket.setTicketStatus(ticketRequest.getTicketStatus());
-                ticket.setSeatNumber(ticketRequest.getSeatNumber());
-                return ResponseEntity.ok(ticket);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
 
     //    DONE
     @DeleteMapping("/{delete-ticket}")
@@ -124,16 +128,15 @@ public class TicketController {
         TICKETS.removeIf(rm -> rm.getTicketId().equals(deleteTicket));
     }
 
-    //    DONE
-    @PutMapping("/Bulk")
-    public ResponseEntity<?> updateMultpleId(@RequestBody UpdatatePaymentStatus status) {
+    //DONE
+    @PutMapping("/bulk")
+    public ResponseEntity<?> updateMultipleId(@RequestBody UpdatatePaymentStatus status) {
         ArrayList<Ticket> isUpdate = new ArrayList<>();
         for (Long id : status.getTicketId()) {
             for (Ticket ticket : TICKETS) {
                 if (ticket.getTicketId().equals(id)) {
                     ticket.setPaymentStatus(status.isPaymentStatus());
                     isUpdate.add(ticket);
-
                 }
             }
         }
